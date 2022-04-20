@@ -188,10 +188,15 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
 def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     n_input = int(sys.argv[3])
     n_features = 6
+
+    sc1 = MinMaxScaler(feature_range=(0,1))
+    bmw_p = df_real_data['BMW']
+    bmw_p = bmw_p.reshape(bmw_p.shape[0],1)
+    bmw_p_scaled = sc1.fit_transform(bmw_p)
     testRNNM_predict  = model.predict(testRNNM)
-    testRNNM_predict=testRNNM_predict[:,n_input-1,0].reshape(-1,1)
-    testRNNM_predict = Y_scaler.inverse_transform(testRNNM_predict)
-    testRNNM_predict=pd.DataFrame(testRNNM_predict ,index=test_MRNN_sc.index[n_input:],columns=['Test'])
+    #testRNNM_predict=testRNNM_predict[:,n_input-1,0].reshape(-1,1)
+    testRNNM_predict = sc1.inverse_transform(testRNNM_predict)
+    #testRNNM_predict=pd.DataFrame(testRNNM_predict ,index=test_MRNN_sc.index[n_input:],columns=['Test'])
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
@@ -275,12 +280,11 @@ def main():
     testRNNM = windowed_dataset_multivariable(test_MRNN_sc, n_input, batch_size)
     plot_predicciones(testinverse,n_input,df_real_data)
     plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data)
-    plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
-    #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
+    #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
     mse = mean_squared_error(df_real_data['BMW']['2021-02-02':'2021-06-29'], testinverse['Predictions'])
     print("Mean squared error: ",mse)
 
-
+    #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
     #print(df_multivariable.head())
     return 0
 
