@@ -1,4 +1,3 @@
-
 from matplotlib.figure import Figure
 import pandas as pd
 import numpy as np
@@ -40,11 +39,6 @@ from sklearn.metrics import mean_squared_error
 
 
 
-
-
-
-
-
 def generar_train_test_datasets():    
 
     bmw_dataS=pd.read_excel('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
@@ -54,27 +48,27 @@ def generar_train_test_datasets():
 
 
     if sys.argv[1] == 'Puducherry':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_Puducherry.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Goa':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_Goa.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Manipur':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_Manipur.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Nagaland':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_Nagaland.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Mizoram':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_Mizoram.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'AMB':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech/df_multivariable_AMB.csv')
+        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
 
@@ -136,7 +130,7 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
     true_predictions = Y_scaler.inverse_transform([test_predictions])
     Predicciones=[]
 
-    for i in range(0,119):
+    for i in range(0,148):
         Predicciones.append(true_predictions[0][i])
 
     return Predicciones
@@ -144,17 +138,17 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
 def plot_predicciones(bmw_dataS,testinverse,n_input):
     fig = plt.figure(figsize=(10, 6))
 
-    plt.plot(bmw_dataS.index,bmw_dataS[sys.argv[1]], label="Datos reales")
-    plt.plot(testinverse.index,testinverse['Predictions'],label="Predicciones")
+    plt.plot(bmw_dataS.index,bmw_dataS[sys.argv[1]], label="Real data")
+    plt.plot(testinverse.index,testinverse['Predictions'],label="Predictions")
 
 
-    plt.axvline(x=datetime.date(2021, 2, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Inicio prediccion")
+    plt.axvline(x=datetime.date(2021, 2, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
-    plt.title('Predictions_'+sys.argv[1]+'_ws_'+ str(n_input))
-    plt.xlabel("Fecha")
-    plt.ylabel("BMW")
-    plt.savefig('Predictions_'+sys.argv[1]+'_ws_'+ str(n_input)+".png",dpi=fig.dpi)
+    plt.title('Predictions_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    plt.xlabel("Date")
+    plt.ylabel("BMW Tons")
+    plt.savefig('predictions_real_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
     plt.show()
     
 
@@ -170,14 +164,14 @@ def plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc):
     trainRNNM_predict=pd.DataFrame(trainRNNM_predict ,index=train_MRNN_sc.index[n_input:],columns=['Test'])
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
-    plt.plot(bmw_dataS[n_input:-150].index,bmw_dataS[sys.argv[1]][n_input:-150], label="Datos reales")
-    plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predicciones")
-    plt.title('Predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input))
-    ax.set_xlabel('Día')
-    ax.set_ylabel('Número de toneladas')
+    plt.plot(bmw_dataS[n_input:-150].index,bmw_dataS[sys.argv[1]][n_input:-150], label="Real data")
+    plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predictions")
+    plt.title('Predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    ax.set_xlabel('Date')
+    ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('Predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+".png",dpi=fig.dpi)
+    plt.savefig('predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
     plt.show()
     
 
@@ -192,14 +186,14 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS):
     testRNNM_predict=pd.DataFrame(testRNNM_predict ,index=test_MRNN_sc.index[n_input:],columns=['Test'])
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
-    plt.plot(bmw_dataS[230:-10].index,bmw_dataS[sys.argv[1]][230:-10], label="Datos reales")
-    plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predicciones")
-    plt.title('Predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input))
-    ax.set_xlabel('Día')
-    ax.set_ylabel('Número de toneladas')
+    plt.plot(bmw_dataS[230:].index,bmw_dataS[sys.argv[1]][230:], label="Real data")
+    plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
+    plt.title('Predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    ax.set_xlabel('Date')
+    ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('Predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+".png",dpi=fig.dpi)
+    plt.savefig('predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
     plt.show()
     
 
@@ -250,7 +244,7 @@ def main():
         model.fit(generator,epochs=50)
 
 
-
+    print("Model succesfully trained")
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
@@ -259,7 +253,7 @@ def main():
     plot_predicciones(bmw_dataS,testinverse,n_input)
     plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc)
     plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS)
-    mse = mean_squared_error(bmw_dataS[sys.argv[1]]['2021-02-02':'2021-05-31'], testinverse['Predictions'])
+    mse = mean_squared_error(bmw_dataS[sys.argv[1]]['2021-02-02':'2021-06-29'], testinverse['Predictions'])
     print("Mean squared error: ",mse)
 
 
