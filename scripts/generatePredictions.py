@@ -49,29 +49,20 @@ def generar_train_test_datasets():
 
     if sys.argv[1] == 'Puducherry':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Goa':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Manipur':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Nagaland':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Mizoram':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'AMB':
         df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
-        df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
-        df_multivariable=df_multivariable.set_index('FECHA')
 
+    df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
+    df_multivariable=df_multivariable.set_index('FECHA')
+    df_real_data = df_multivariable.copy(deep=True)
     X_scaler = MinMaxScaler()
     Y_scaler = MinMaxScaler()
     X_data=X_scaler.fit_transform(df_multivariable[['Casos', 'Muertes', 'Mov Residencial', 'Mov trabajo', 'Mov estaciones']])
@@ -81,12 +72,13 @@ def generar_train_test_datasets():
 
     train_MRNN_sc=df_multivariable['2020-06-17':'2021-02-01']
     test_MRNN_sc=df_multivariable['2021-02-02':]
-
+	
+	
     test_MRNN_sc['BMW'][:]=0    #Unicamente para asegurar que las predicciones no esten tomando los valores reales de BMW 
 
     #print(sys.argv[1])
     #print(df_multivariable.head())
-    return train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler, df_multivariable
+    return train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler, df_real_data
 
 
 def generador_serie_tiempo(train_MRNN_sc,test_MRNN_sc):
@@ -135,25 +127,24 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
 
     return Predicciones
 
-def plot_predicciones(bmw_dataS,testinverse,n_input,df_multivariable):
+def plot_predicciones(testinverse,n_input,df_real_data):
     fig = plt.figure(figsize=(10, 6))
 
-    plt.plot(df_multivariable.index,df_multivariable['BMW'], label="Real data")
+    plt.plot(df_real_data.index,df_real_data['BMW'], label="Real data")
     plt.plot(testinverse.index,testinverse['Predictions'],label="Predictions")
 
 
     plt.axvline(x=datetime.date(2021, 2, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
-    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
+    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
     plt.savefig('predictions_real_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
-    plt.show()
     
 
 
-def plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc,df_multivariable):
+def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     #evaluate for training 
     #train_data = windowed_dataset(train_escalado, window_size, batch_size=32, shuffle_buffer=0)
 
@@ -164,19 +155,18 @@ def plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc,df_mu
     trainRNNM_predict=pd.DataFrame(trainRNNM_predict ,index=train_MRNN_sc.index[n_input:],columns=['Test'])
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
-    plt.plot(df_multivariable[n_input:-150].index,df_multivariable['BMW'][n_input:-150], label="Real data")
+    plt.plot(df_real_data[n_input:-150].index,df_real_data['BMW'][n_input:-150], label="Real data")
     plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predictions")
-    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
+    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
     plt.savefig('predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
-    plt.show()
     
 
 
-def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS):
+def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     n_input = int(sys.argv[3])
     n_features = 6
     generatorTest = TimeseriesGenerator(test_MRNN_scN, test_MRNN_scN, length=n_input, batch_size=1)
@@ -186,22 +176,58 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS):
     testRNNM_predict=pd.DataFrame(testRNNM_predict ,index=test_MRNN_sc.index[n_input:],columns=['Test'])
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(1, 1, 1)
-    plt.plot(df_multivariable[230:].index,df_multivariable['BMW'][230:], label="Real data")
+    plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
+    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
     plt.savefig('predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
-    plt.show()
-    
 
+def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
+    n_input = int(sys.argv[3])
+    n_features = 6
+    testRNNM_predict  = model.predict(testRNNM)
+    testRNNM_predict=testRNNM_predict[:,n_input-1,0].reshape(-1,1)
+    testRNNM_predict = Y_scaler.inverse_transform(testRNNM_predict)
+    testRNNM_predict=pd.DataFrame(testRNNM_predict ,index=test_MRNN_sc.index[n_input:],columns=['Test'])
+    fig = plt.figure(figsize=(12,6))
+    ax = fig.add_subplot(1, 1, 1)
+    plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
+    plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
+    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    ax.set_xlabel('Date')
+    ax.set_ylabel("BMW Tons")
+    ax.get_gid()
+    ax.legend()
+    plt.savefig('predictions_test2_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    
+def windowed_dataset_multivariable(series, window_size, batch_size):
+    # convert the series to tensor format
+    dataset = tf.data.Dataset.from_tensor_slices(series)
+    # create the windows shifted 1 position, 
+    #drop_remainder keeps the number of elements in the window the same size.
+    dataset = dataset.window(window_size + 1, shift=1, drop_remainder=True)
+    # convert each window to numpy vector format
+    dataset = dataset.flat_map(lambda window: window.batch(window_size + 1))
+    # choose t --> t-1 as a features and the last one as a label
+    # [0, 1, 2, 3][4]
+    dataset = dataset.map(lambda window: (window[:-1], window[-1,0]))
+    # shuffle the data
+    #if (shuffle_buffer is not 0):
+    #  print("shuffle")
+    #  dataset = dataset.shuffle(shuffle_buffer)
+    # Generate the batches
+    # x = [[0, 1, 2, 3], [4, 5, 6, 7]]
+    # y = [[4], [8]]
+    dataset = dataset.batch(batch_size).prefetch(1)
+    return dataset
 
 def main():
-    train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler,df_multivariable=generar_train_test_datasets()
+    train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler,df_real_data=generar_train_test_datasets()
     generator,n_input,n_features,train_MRNN_scN, test_MRNN_scN=generador_serie_tiempo(train_MRNN_sc,test_MRNN_sc)
-
+    batch_size = 32
 
     if sys.argv[2] == 'LSTM' or sys.argv[2]== '':
         
@@ -211,9 +237,9 @@ def main():
         model.add(LSTM(128, return_sequences=True,activation='relu'))
         model.add(LSTM(256, return_sequences=True,activation='relu'))
         model.add(LSTM(128, return_sequences=True,activation='relu'))
-        model.add(LSTM(64, return_sequences=False,activation='relu'))
-        model.add(Dense(1),activation='linear')
-        #model.add(LSTM(n_features, return_sequences=True)) 
+        model.add(LSTM(64, return_sequences=True,activation='relu'))
+        #model.add(Dense(1,activation='linear'))
+        model.add(LSTM(n_features, return_sequences=True)) 
         
     elif sys.argv[2] == 'GRU':
         # define model
@@ -222,9 +248,9 @@ def main():
         model.add(GRU(128, return_sequences=True,activation='relu'))
         model.add(GRU(256, return_sequences=True,activation='relu'))
         model.add(GRU(128, return_sequences=True,activation='relu'))
-        model.add(GRU(64, return_sequences=False,activation='relu'))
-        model.add(Dense(1),activation='linear')
-        #model.add(GRU(n_features, return_sequences=True)) 
+        model.add(GRU(64, return_sequences=True,activation='relu'))
+        #model.add(Dense(1,activation='linear'))
+        model.add(GRU(n_features, return_sequences=True)) 
         
     elif sys.argv[2] == 'RNN':
         # define model
@@ -233,10 +259,10 @@ def main():
         model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
         model.add(SimpleRNN(256, return_sequences=True,activation='tanh'))
         model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
-        model.add(SimpleRNN(64, return_sequences=False,activation='tanh'))
-        model.add(Dense(16),activation='relu')
-        model.add(Dense(1),activation='linear')
-        #model.add(SimpleRNN(n_features, return_sequences=True)) 
+        model.add(SimpleRNN(64, return_sequences=True,activation='tanh'))
+        #model.add(Dense(16,activation='relu'))
+        #model.add(Dense(1,activation='linear'))
+        model.add(SimpleRNN(n_features, return_sequences=True)) 
       
 
     model.compile(optimizer='adam', loss='mse')
@@ -246,11 +272,12 @@ def main():
 
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
     testinverse['Predictions']=Predicciones
-
-    plot_predicciones(bmw_dataS,testinverse,n_input,df_multivariable)
-    plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc,df_multivariable)
-    plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS,df_multivariable)
-    mse = mean_squared_error(df_multivariable['BMW']['2021-02-02':'2021-06-29'], testinverse['Predictions'])
+    testRNNM = windowed_dataset_multivariable(test_MRNN_sc, n_input, batch_size)
+    plot_predicciones(testinverse,n_input,df_real_data)
+    plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data)
+    plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
+    #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
+    mse = mean_squared_error(df_real_data['BMW']['2021-02-02':'2021-06-29'], testinverse['Predictions'])
     print("Mean squared error: ",mse)
 
 
