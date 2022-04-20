@@ -40,35 +40,35 @@ from sklearn.metrics import mean_squared_error
 
 
 def generar_train_test_datasets():    
-
-    bmw_dataS=pd.read_excel('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
+    gitURL='https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/'
+    bmw_dataS=pd.read_excel(gitURL+'india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
     bmw_dataS['FECHA'] = pd.to_datetime(bmw_dataS['FECHA'], infer_datetime_format=True)
     bmw_dataS=bmw_dataS.fillna(bmw_dataS.mean())
     bmw_dataS=bmw_dataS.set_index('FECHA')
 
 
     if sys.argv[1] == 'Puducherry':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Goa':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Manipur':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Nagaland':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Mizoram':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'AMB':
-        df_multivariable=pd.read_csv('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
+        df_multivariable=pd.read_csv(gitURL+'India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
 
@@ -145,7 +145,7 @@ def plot_predicciones(bmw_dataS,testinverse,n_input):
     plt.axvline(x=datetime.date(2021, 2, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
-    plt.title('Predictions_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
     plt.savefig('predictions_real_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
@@ -166,7 +166,7 @@ def plot_training(bmw_dataS,generator,model,Y_scaler,n_input,train_MRNN_sc):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(bmw_dataS[n_input:-150].index,bmw_dataS[sys.argv[1]][n_input:-150], label="Real data")
     plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predictions")
-    plt.title('Predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
@@ -188,7 +188,7 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(bmw_dataS[230:].index,bmw_dataS[sys.argv[1]][230:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title('Predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+" using the "+sys.argv[2] + " model")
+    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+sys.argv[1])
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
@@ -196,8 +196,6 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,bmw_dataS):
     plt.savefig('predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
     plt.show()
     
-
-
 
 
 def main():
@@ -210,40 +208,39 @@ def main():
         # define model
         model = Sequential()
         model.add(LSTM(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
-        model.add(LSTM(128, return_sequences=True))
-        model.add(LSTM(256, return_sequences=True))
-        model.add(LSTM(128, return_sequences=True))
-        model.add(LSTM(64, return_sequences=True))
-        #model.add(Dense(1))
-        model.add(LSTM(n_features, return_sequences=True)) 
-        model.compile(optimizer='adam', loss='mse')
-        model.fit(generator,epochs=50)
+        model.add(LSTM(128, return_sequences=True,activation='relu'))
+        model.add(LSTM(256, return_sequences=True,activation='relu'))
+        model.add(LSTM(128, return_sequences=True,activation='relu'))
+        model.add(LSTM(64, return_sequences=False,activation='relu'))
+        model.add(Dense(1),activation='linear')
+        #model.add(LSTM(n_features, return_sequences=True)) 
+        
     elif sys.argv[2] == 'GRU':
         # define model
         model = Sequential()
         model.add(GRU(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
-        model.add(GRU(128, return_sequences=True))
-        model.add(GRU(256, return_sequences=True))
-        model.add(GRU(128, return_sequences=True))
-        model.add(GRU(64, return_sequences=True))
-        #model.add(Dense(1))
-        model.add(GRU(n_features, return_sequences=True)) 
-        model.compile(optimizer='adam', loss='mse')
-        model.fit(generator,epochs=50)
+        model.add(GRU(128, return_sequences=True,activation='relu'))
+        model.add(GRU(256, return_sequences=True,activation='relu'))
+        model.add(GRU(128, return_sequences=True,activation='relu'))
+        model.add(GRU(64, return_sequences=False,activation='relu'))
+        model.add(Dense(1),activation='linear')
+        #model.add(GRU(n_features, return_sequences=True)) 
+        
     elif sys.argv[2] == 'RNN':
         # define model
         model = Sequential()
-        model.add(SimpleRNN(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
-        model.add(SimpleRNN(128, return_sequences=True))
-        model.add(SimpleRNN(256, return_sequences=True))
-        model.add(SimpleRNN(128, return_sequences=True))
-        model.add(SimpleRNN(64, return_sequences=True))
-        #model.add(Dense(1))
-        model.add(SimpleRNN(n_features, return_sequences=True)) 
-        model.compile(optimizer='adam', loss='mse')
-        model.fit(generator,epochs=50)
+        model.add(SimpleRNN(64, return_sequences=True,activation='tanh', input_shape=(n_input, n_features)))
+        model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
+        model.add(SimpleRNN(256, return_sequences=True,activation='tanh'))
+        model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
+        model.add(SimpleRNN(64, return_sequences=False,activation='tanh'))
+        model.add(Dense(16),activation='relu')
+        model.add(Dense(1),activation='linear')
+        #model.add(SimpleRNN(n_features, return_sequences=True)) 
+      
 
-
+    model.compile(optimizer='adam', loss='mse')
+    model.fit(generator,epochs=50)
     print("Model succesfully trained")
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
@@ -257,17 +254,8 @@ def main():
     print("Mean squared error: ",mse)
 
 
-
-
-
-
-
-
-
     #print(df_multivariable.head())
     return 0
-
-
 
 if __name__ == '__main__':
     main()
