@@ -39,35 +39,36 @@ from sklearn.metrics import mean_squared_error
 
 
 
-def generar_train_test_datasets():    
-    bmw_dataS=pd.read_excel('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
+def generar_train_test_datasets():
+    dataURL='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/'
+    bmw_dataS=pd.read_excel(dataURL+'india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
     bmw_dataS['FECHA'] = pd.to_datetime(bmw_dataS['FECHA'], infer_datetime_format=True)
     bmw_dataS=bmw_dataS.fillna(bmw_dataS.mean())
     bmw_dataS=bmw_dataS.set_index('FECHA')
 
 
     if sys.argv[1] == 'Puducherry':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Goa':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Manipur':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Nagaland':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'Mizoram':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
     elif sys.argv[1] == 'AMB':
-        df_multivariable=pd.read_csv('https://github.com/DavidGD03/plastics-COVID_project/blob/main/data/India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
         df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
         df_multivariable=df_multivariable.set_index('FECHA')
 
