@@ -36,7 +36,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
 import datetime
 from sklearn.metrics import mean_squared_error
-
+from keras.utils.vis_utils import plot_model
 
 
 def generar_train_test_datasets():
@@ -260,16 +260,16 @@ def main():
     elif sys.argv[2] == 'RNN':
         # define model
         model = Sequential()
-        model.add(SimpleRNN(64, return_sequences=True,activation='tanh', input_shape=(n_input, n_features)))
-        model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
-        model.add(SimpleRNN(256, return_sequences=True,activation='tanh'))
-        model.add(SimpleRNN(128, return_sequences=True,activation='tanh'))
-        model.add(SimpleRNN(64, return_sequences=True,activation='tanh'))
+        model.add(SimpleRNN(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
+        model.add(SimpleRNN(128, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(256, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(128, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(64, return_sequences=True,activation='relu'))
         #model.add(Dense(16,activation='relu'))
         #model.add(Dense(1,activation='linear'))
         model.add(SimpleRNN(n_features, return_sequences=True)) 
       
-
+    plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
     model.compile(optimizer='adam', loss='mse')
     model.fit(generator,epochs=50)
     print("Model succesfully trained")
