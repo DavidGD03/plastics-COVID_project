@@ -48,17 +48,17 @@ def generar_train_test_datasets():
 
 
     if sys.argv[1] == 'Puducherry':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Puducherry.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Puducherry.csv')
     elif sys.argv[1] == 'Goa':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Goa.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Goa.csv')
     elif sys.argv[1] == 'Manipur':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Manipur.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Manipur.csv')
     elif sys.argv[1] == 'Nagaland':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Nagaland.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Nagaland.csv')
     elif sys.argv[1] == 'Mizoram':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_Mizoram.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Mizoram.csv')
     elif sys.argv[1] == 'AMB':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech2/df_multivariable_AMB.csv')
+        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_AMB.csv')
 
     df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
     df_multivariable=df_multivariable.set_index('FECHA')
@@ -70,8 +70,8 @@ def generar_train_test_datasets():
     df_multivariable[['Casos', 'Muertes', 'Mov Residencial', 'Mov trabajo', 'Mov estaciones']]=X_data
     df_multivariable[['BMW']]=Y_data
 
-    train_MRNN_sc=df_multivariable['2020-06-17':'2021-02-01']
-    test_MRNN_sc=df_multivariable['2021-02-02':]
+    train_MRNN_sc=df_multivariable['2020-06-17':'2021-08-14']
+    test_MRNN_sc=df_multivariable['2021-08-15':]
 	
 	
     test_MRNN_sc['BMW'][:]=0    #Unicamente para asegurar que las predicciones no esten tomando los valores reales de BMW 
@@ -122,7 +122,7 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
     true_predictions = Y_scaler.inverse_transform([test_predictions])
     Predicciones=[]
 
-    for i in range(0,148):
+    for i in range(len(test_MRNN_scN)):
         Predicciones.append(true_predictions[0][i])
 
     return Predicciones
@@ -134,7 +134,7 @@ def plot_predicciones(testinverse,n_input,df_real_data):
     plt.plot(testinverse.index,testinverse['Predictions'],label="Predictions")
 
 
-    plt.axvline(x=datetime.date(2021, 2, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
+    plt.axvline(x=datetime.date(2021, 8, 15), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
     plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
@@ -269,19 +269,19 @@ def main():
         #model.add(Dense(1,activation='linear'))
         model.add(SimpleRNN(n_features, return_sequences=True)) 
       
-    plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+    #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True
     model.compile(optimizer='adam', loss='mse')
-    model.fit(generator,epochs=50)
+    model.fit(generator,epochs=200)
     print("Model succesfully trained")
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
     testinverse['Predictions']=Predicciones
-    testRNNM = windowed_dataset_multivariable(test_MRNN_sc, n_input, batch_size)
+    #testRNNM = windowed_dataset_multivariable(test_MRNN_sc, n_input, batch_size)
     plot_predicciones(testinverse,n_input,df_real_data)
     plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data)
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
-    mse = mean_squared_error(df_real_data['BMW']['2021-02-02':'2021-06-29'], testinverse['Predictions'])
+    mse = mean_squared_error(df_real_data['BMW']['2021-08-15':'2021-12-31'], testinverse['Predictions'])
     print("Mean squared error: ",mse)
 
     #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
