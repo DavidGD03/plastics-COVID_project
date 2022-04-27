@@ -271,12 +271,12 @@ def main():
       
     #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True
     model.compile(optimizer='adam', loss='mse')
-    history=model.fit(generator,epochs=200)
+    history=model.fit(generator,epochs=50)
     print("Model succesfully trained")
     
-    mse = history.history['mse']
+    mse = history.history['loss']
 
-    epochs=range(len(loss)) # Get number of epochs
+    epochs=range(len(mse)) # Get number of epochs
 
     #------------------------------------------------
     # Plot MAE, MSE and Loss
@@ -287,9 +287,8 @@ def main():
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
-    plt.show();
     
-    plt.savefig('epochs-mse_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    plt.savefig('epochs-mse_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
