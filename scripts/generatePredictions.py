@@ -271,8 +271,26 @@ def main():
       
     #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True
     model.compile(optimizer='adam', loss='mse')
-    model.fit(generator,epochs=200)
+    history=model.fit(generator,epochs=200)
     print("Model succesfully trained")
+    
+    mse = history.history['mse']
+
+    epochs=range(len(loss)) # Get number of epochs
+
+    #------------------------------------------------
+    # Plot MAE, MSE and Loss
+    #------------------------------------------------
+    plt.figure(figsize=(10, 6));
+    plt.plot(epochs, mse, 'green', label='MSE')
+    plt.title("Number of epochs vs MSE using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.xlabel("Epochs")
+    plt.ylabel("Error")
+    plt.legend();
+    plt.show();
+    
+    plt.savefig('epochs-mse_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
