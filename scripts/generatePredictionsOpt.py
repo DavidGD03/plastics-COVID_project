@@ -70,8 +70,8 @@ def generar_train_test_datasets():
     df_multivariable[['Casos', 'Muertes', 'Mov Residencial', 'Mov trabajo', 'Mov estaciones']]=X_data
     df_multivariable[['BMW']]=Y_data
 
-    train_MRNN_sc=df_multivariable['2020-06-17':'2021-08-14']
-    test_MRNN_sc=df_multivariable['2021-08-15':]
+    train_MRNN_sc=df_multivariable['2020-06-17':'2021-07-01']
+    test_MRNN_sc=df_multivariable['2021-07-02':]
 	
 	
     test_MRNN_sc['BMW'][:]=0    #Unicamente para asegurar que las predicciones no esten tomando los valores reales de BMW 
@@ -134,7 +134,7 @@ def plot_predicciones(testinverse,n_input,df_real_data):
     plt.plot(testinverse.index,testinverse['Predictions'],label="Predictions")
 
 
-    plt.axvline(x=datetime.date(2021, 8, 15), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
+    plt.axvline(x=datetime.date(2021, 7, 2), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
     plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
@@ -298,7 +298,7 @@ def main():
     plot_predicciones(testinverse,n_input,df_real_data)
     plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data)
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
-    mse = mean_squared_error(df_real_data['BMW']['2021-08-15':'2021-12-31'], testinverse['Predictions'])
+    mse = mean_squared_error(df_real_data['BMW']['2021-07-02':'2021-12-31'], testinverse['Predictions'])
     print("Mean squared error: ",mse)
 
     #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
