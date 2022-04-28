@@ -137,7 +137,7 @@ def plot_predicciones(testinverse,n_input,df_real_data):
     plt.axvline(x=datetime.date(2021, 8, 15), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
-    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
     plt.savefig('predictions_real_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
@@ -157,7 +157,7 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[n_input:-150].index,df_real_data['BMW'][n_input:-150], label="Real data")
     plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predictions")
-    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
@@ -178,7 +178,7 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
@@ -201,7 +201,7 @@ def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input) + " for " + sys.argv[1])
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
@@ -283,7 +283,7 @@ def main():
     #------------------------------------------------
     plt.figure(figsize=(10, 6));
     plt.plot(epochs, mse, 'green', label='MSE')
-    plt.title("Number of epochs vs MSE using the "+sys.argv[2] + " model and a window-size of "+str(n_input))
+    plt.title("Number of epochs vs MSE using the "+sys.argv[2] + " model and a window-size of "+str(n_input) + " for " + sys.argv[1])
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
