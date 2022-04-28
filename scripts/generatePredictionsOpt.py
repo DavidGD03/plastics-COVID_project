@@ -260,11 +260,11 @@ def main():
     elif sys.argv[2] == 'RNN':
         # define model
         model = Sequential()
-        model.add(SimpleRNN(64, return_sequences=True,activation='tanh', input_shape=(n_input, n_features)))
-        model.add(SimpleRNN(128, return_sequences=True,recurrent_activation='sigmoid'))
-        model.add(SimpleRNN(256, return_sequences=True,recurrent_activation='sigmoid'))
-        model.add(SimpleRNN(128, return_sequences=True,recurrent_activation='sigmoid'))
-        model.add(SimpleRNN(64, return_sequences=True,recurrent_activation='sigmoid'))
+        model.add(SimpleRNN(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
+        model.add(SimpleRNN(128, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(256, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(128, return_sequences=True,activation='relu'))
+        model.add(SimpleRNN(64, return_sequences=True,activation='relu'))
         #model.add(Dense(16,activation='relu'))
         #model.add(Dense(1,activation='linear'))
         model.add(SimpleRNN(n_features, return_sequences=True)) 
