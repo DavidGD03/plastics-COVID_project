@@ -271,7 +271,7 @@ def main():
       
     #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True
     model.compile(optimizer='adam', loss='mse')
-    history=model.fit(generator,epochs=50)
+    history=model.fit(generator,epochs=200)
     print("Model succesfully trained")
     
     mse = history.history['loss']
