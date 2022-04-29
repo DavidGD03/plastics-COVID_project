@@ -283,7 +283,7 @@ def main():
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
     
     mse = mean_squared_error(df_real_data['BMW']['2021-07-02':'2021-12-31'], testinverse['Predictions'])
-    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+str(window) + " for " + region + ': '+mse
+    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+str(window) + " for " + region + ': '+str(mse)
     with open("MSE.txt", "a") as f:
         print(errorMessage, file=f)
     
