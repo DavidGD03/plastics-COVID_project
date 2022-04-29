@@ -206,19 +206,6 @@ def windowed_dataset_multivariable(series, window_size, batch_size):
     dataset = dataset.batch(batch_size).prefetch(1)
     return dataset
 
-def mkdir_p(mypath):
-    '''Creates a directory. equivalent to using mkdir -p on the command line'''
-
-    from errno import EEXIST
-    from os import makedirs,path
-
-    try:
-        makedirs(mypath)
-    except OSError as exc: # Python >2.5
-        if exc.errno == EEXIST and path.isdir(mypath):
-            pass
-        else: raise
-
 def main():
     train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler,df_real_data=generar_train_test_datasets()
     generator,n_input,n_features,train_MRNN_scN, test_MRNN_scN=generador_serie_tiempo(train_MRNN_sc,test_MRNN_sc)
@@ -278,7 +265,12 @@ def main():
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
-    mkdir_p('/'+modelo +'/'+region) # Create subfolder for the results
+
+    resultspath='/'+modelo +'/'+region
+    isExist = os.path.exists(resultspath)
+    if not isExist:
+        os.makedirs(resultspath) # create results directory
+
     plt.savefig('/'+modelo +'/'+region+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
@@ -291,7 +283,7 @@ def main():
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
     
     mse = mean_squared_error(df_real_data['BMW']['2021-07-02':'2021-12-31'], testinverse['Predictions'])
-    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+window + " for " + region + ': '+mse
+    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+str(window) + " for " + region + ': '+mse
     with open("MSE.txt", "a") as f:
         print(errorMessage, file=f)
     
