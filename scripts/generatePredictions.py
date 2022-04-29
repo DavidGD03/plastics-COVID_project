@@ -139,7 +139,6 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_train_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
@@ -161,7 +160,6 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_test_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
 
 def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
@@ -185,7 +183,6 @@ def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_test2_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 def windowed_dataset_multivariable(series, window_size, batch_size):
@@ -281,7 +278,7 @@ def main():
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
-    mkdir_p('/'+modelo +'/'+region) # Create subfolder
+    mkdir_p('/'+modelo +'/'+region) # Create subfolder for the results
     plt.savefig('/'+modelo +'/'+region+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
@@ -294,7 +291,7 @@ def main():
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
     
     mse = mean_squared_error(df_real_data['BMW']['2021-07-02':'2021-12-31'], testinverse['Predictions'])
-    errorMessage="Mean squared error using the "+model + " model and a window-size of "+str(n_input) + " for " + region + ': '+mse
+    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+window + " for " + region + ': '+mse
     with open("MSE.txt", "a") as f:
         print(errorMessage, file=f)
     
