@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import model_selection
 from sklearn.metrics import accuracy_score
 
 from sklearn.model_selection import train_test_split
@@ -211,7 +212,7 @@ def main():
     region = sys.argv[1]
     modelo = sys.argv[2]
 
-    if modelo == 'LSTM' or model== '':
+    if modelo == 'LSTM' or modelo== '':
         
         # define model
         model = Sequential()
