@@ -11,6 +11,7 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 
 import sys
+import os
 
 from keras.layers import LSTM
 from keras.layers import GRU
@@ -138,6 +139,7 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
+    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_train_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
@@ -159,6 +161,7 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
+    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_test_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
 
 def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
@@ -182,6 +185,7 @@ def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
+    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'predictions_test2_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 def windowed_dataset_multivariable(series, window_size, batch_size):
@@ -204,6 +208,19 @@ def windowed_dataset_multivariable(series, window_size, batch_size):
     # y = [[4], [8]]
     dataset = dataset.batch(batch_size).prefetch(1)
     return dataset
+
+def mkdir_p(mypath):
+    '''Creates a directory. equivalent to using mkdir -p on the command line'''
+
+    from errno import EEXIST
+    from os import makedirs,path
+
+    try:
+        makedirs(mypath)
+    except OSError as exc: # Python >2.5
+        if exc.errno == EEXIST and path.isdir(mypath):
+            pass
+        else: raise
 
 def main():
     train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler,df_real_data=generar_train_test_datasets()
@@ -264,7 +281,7 @@ def main():
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
-    
+    mkdir_p('/'+modelo +'/'+region) # Create subfolder
     plt.savefig('/'+modelo +'/'+region+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
