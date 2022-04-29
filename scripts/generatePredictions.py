@@ -1,18 +1,8 @@
-from matplotlib.figure import Figure
 import pandas as pd
 import numpy as np
-from sklearn.svm import SVC
 import matplotlib.pyplot as plt
-from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import DecisionTreeClassifier
-#import seaborn as sns
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score
-import random
-import time
 
-import matplotlib.patches as patches
 from sklearn.model_selection import train_test_split
 
 from tensorflow import keras
@@ -20,45 +10,42 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 
 import sys
-from sklearn import datasets
-
 
 from keras.layers import LSTM
 from keras.layers import GRU
 from keras.layers import SimpleRNN
 from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.callbacks import EarlyStopping
 import sys
-import requests
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
 import datetime
 from sklearn.metrics import mean_squared_error
 from keras.utils.vis_utils import plot_model
 
+# Parámetros de entrada del script
+region = sys.argv[1]
+modelo = sys.argv[2]
+window = sys.argv[3]
 
 def generar_train_test_datasets():
-    dataURL='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/'
-    bmw_dataS=pd.read_excel(dataURL+'india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
+    dataURLRegiones='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech3/'
+    bmw_dataS=pd.read_excel('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
     bmw_dataS['FECHA'] = pd.to_datetime(bmw_dataS['FECHA'], infer_datetime_format=True)
     bmw_dataS=bmw_dataS.fillna(bmw_dataS.mean())
     bmw_dataS=bmw_dataS.set_index('FECHA')
 
-
-    if sys.argv[1] == 'Puducherry':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Puducherry.csv')
-    elif sys.argv[1] == 'Goa':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Goa.csv')
-    elif sys.argv[1] == 'Manipur':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Manipur.csv')
-    elif sys.argv[1] == 'Nagaland':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Nagaland.csv')
-    elif sys.argv[1] == 'Mizoram':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_Mizoram.csv')
-    elif sys.argv[1] == 'AMB':
-        df_multivariable=pd.read_csv(dataURL+'India_5_Regiones_Simultech3/df_multivariable_AMB.csv')
+    if region == 'Puducherry':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_Puducherry.csv')
+    elif region == 'Goa':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_Goa.csv')
+    elif region == 'Manipur':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_Manipur.csv')
+    elif region == 'Nagaland':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_Nagaland.csv')
+    elif region == 'Mizoram':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_Mizoram.csv')
+    elif region == 'AMB':
+        df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_AMB.csv')
 
     df_multivariable['FECHA'] = pd.to_datetime(df_multivariable['FECHA'], infer_datetime_format=True)
     df_multivariable=df_multivariable.set_index('FECHA')
@@ -73,18 +60,14 @@ def generar_train_test_datasets():
     train_MRNN_sc=df_multivariable['2020-06-17':'2021-07-01']
     test_MRNN_sc=df_multivariable['2021-07-02':]
 	
-	
     test_MRNN_sc['BMW'][:]=0    #Unicamente para asegurar que las predicciones no esten tomando los valores reales de BMW 
-
-    #print(sys.argv[1])
-    #print(df_multivariable.head())
     return train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler, df_real_data
 
 
 def generador_serie_tiempo(train_MRNN_sc,test_MRNN_sc):
     train_MRNN_scN=train_MRNN_sc.to_numpy()
     test_MRNN_scN=test_MRNN_sc.to_numpy()
-    n_input = int(sys.argv[3])
+    n_input = int(window)
     n_features = 6
     generator = TimeseriesGenerator(train_MRNN_scN, train_MRNN_scN, length=n_input, batch_size=1)   
     return generator,n_input,n_features,train_MRNN_scN, test_MRNN_scN
@@ -94,13 +77,11 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
     test_variables=test_MRNN_scN
     temporal=[]
 
-
     first_eval_batch = train_MRNN_scN[-n_input:]
     current_batch = first_eval_batch.reshape((1, n_input, n_features))
     test_batch= test_variables.reshape((1,len(test_variables),n_features))
 
     for i in range(len(test_MRNN_scN)):
-    
         # get the prediction value for the first batch
         current_pred = model.predict(current_batch)[0]
     
@@ -112,12 +93,9 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
         temporal= test_batch[0,i,:]
         temporal= temporal.reshape((1,1,6))
 
-        #print("temporal:")
-        #print(temporal)
         # use the prediction to update the batch and remove the first value
         #current_batch = np.append(current_batch[:,1:,:],[[current_pred]],axis=1)
         current_batch = np.append(current_batch[:,1:,:],temporal,axis=1)
-        #print(current_batch)
     
     true_predictions = Y_scaler.inverse_transform([test_predictions])
     Predicciones=[]
@@ -132,22 +110,19 @@ def plot_predicciones(testinverse,n_input,df_real_data):
 
     plt.plot(df_real_data.index,df_real_data['BMW'], label="Real data")
     plt.plot(testinverse.index,testinverse['Predictions'],label="Predictions")
-
-
     plt.axvline(x=datetime.date(2021, 7, 2), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
 
     plt.legend(loc='best')
-    plt.title("Real predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
+    plt.title("Real predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for " + region)
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
-    plt.savefig('predictions_real_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    plt.savefig('/'+modelo +'/'+region+'predictions_real_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
 
 def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     #evaluate for training 
     #train_data = windowed_dataset(train_escalado, window_size, batch_size=32, shuffle_buffer=0)
-
     trainRNNM_predict  = model.predict(generator)
     trainRNNM_predict=trainRNNM_predict[:,n_input-1,0].reshape(-1,1)
 
@@ -157,17 +132,17 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[n_input:-150].index,df_real_data['BMW'][n_input:-150], label="Real data")
     plt.plot(trainRNNM_predict.index,trainRNNM_predict['Test'],label="Predictions")
-    plt.title("Train predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
+    plt.title("Train predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for " + region)
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('predictions_train_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    plt.savefig('/'+modelo +'/'+region+'predictions_train_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
 
 def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
-    n_input = int(sys.argv[3])
+    n_input = int(window)
     n_features = 6
     generatorTest = TimeseriesGenerator(test_MRNN_scN, test_MRNN_scN, length=n_input, batch_size=1)
     testRNNM_predict  = model.predict(generatorTest)
@@ -178,15 +153,15 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input)+ " for " + sys.argv[1])
+    plt.title("Test predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for " + region)
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('predictions_test_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    plt.savefig('/'+modelo +'/'+region+'predictions_test_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
 
 def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
-    n_input = int(sys.argv[3])
+    n_input = int(window)
     n_features = 6
 
     sc1 = MinMaxScaler(feature_range=(0,1))
@@ -201,12 +176,12 @@ def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax = fig.add_subplot(1, 1, 1)
     plt.plot(df_real_data[260:].index,df_real_data['BMW'][260:], label="Real data")
     plt.plot(testRNNM_predict.index,testRNNM_predict['Test'],label="Predictions")
-    plt.title("Test predictions using the "+sys.argv[2] + " model and a window-size of "+str(n_input) + " for " + sys.argv[1])
+    plt.title("Test predictions using the "+modelo + " model and a window-size of "+str(n_input) + " for " + region)
     ax.set_xlabel('Date')
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('predictions_test2_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png",dpi=fig.dpi)
+    plt.savefig('/'+modelo +'/'+region+'predictions_test2_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 def windowed_dataset_multivariable(series, window_size, batch_size):
     # convert the series to tensor format
@@ -232,32 +207,34 @@ def windowed_dataset_multivariable(series, window_size, batch_size):
 def main():
     train_MRNN_sc, test_MRNN_sc, bmw_dataS,  X_scaler, Y_scaler,df_real_data=generar_train_test_datasets()
     generator,n_input,n_features,train_MRNN_scN, test_MRNN_scN=generador_serie_tiempo(train_MRNN_sc,test_MRNN_sc)
-    batch_size = 32
+    #batch_size = 32
+    region = sys.argv[1]
+    modelo = sys.argv[2]
 
-    if sys.argv[2] == 'LSTM' or sys.argv[2]== '':
+    if modelo == 'LSTM' or model== '':
         
         # define model
         model = Sequential()
         model.add(LSTM(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
-        model.add(LSTM(128, return_sequences=True,recurrent_activation='relu'))
-        model.add(LSTM(256, return_sequences=True,recurrent_activation='relu'))
-        model.add(LSTM(128, return_sequences=True,recurrent_activation='relu'))
-        model.add(LSTM(64, return_sequences=True,recurrent_activation='relu'))
+        model.add(LSTM(128, return_sequences=True,activation='relu'))
+        model.add(LSTM(256, return_sequences=True,activation='relu'))
+        model.add(LSTM(128, return_sequences=True,activation='relu'))
+        model.add(LSTM(64, return_sequences=True,activation='relu'))
         #model.add(Dense(1,activation='linear'))
         model.add(LSTM(n_features, return_sequences=True)) 
         
-    elif sys.argv[2] == 'GRU':
+    elif modelo == 'GRU':
         # define model
         model = Sequential()
         model.add(GRU(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
-        model.add(GRU(128, return_sequences=True,recurrent_activation='relu'))
-        model.add(GRU(256, return_sequences=True,recurrent_activation='relu'))
-        model.add(GRU(128, return_sequences=True,recurrent_activation='relu'))
-        model.add(GRU(64, return_sequences=True,recurrent_activation='relu'))
+        model.add(GRU(128, return_sequences=True,activation='relu'))
+        model.add(GRU(256, return_sequences=True,activation='relu'))
+        model.add(GRU(128, return_sequences=True,activation='relu'))
+        model.add(GRU(64, return_sequences=True,activation='relu'))
         #model.add(Dense(1,activation='linear'))
         model.add(GRU(n_features, return_sequences=True)) 
         
-    elif sys.argv[2] == 'RNN':
+    elif modelo == 'RNN':
         # define model
         model = Sequential()
         model.add(SimpleRNN(64, return_sequences=True,activation='relu', input_shape=(n_input, n_features)))
@@ -277,18 +254,17 @@ def main():
     mse = history.history['loss']
 
     epochs=range(len(mse)) # Get number of epochs
-
     #------------------------------------------------
     # Plot MAE, MSE and Loss
     #------------------------------------------------
     plt.figure(figsize=(10, 6));
     plt.plot(epochs, mse, 'green', label='MSE')
-    plt.title("Number of epochs vs MSE using the "+sys.argv[2] + " model and a window-size of "+str(n_input) + " for " + sys.argv[1])
+    plt.title("Number of epochs vs MSE using the "+modelo + " model and a window-size of "+str(n_input) + " for " + region)
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.legend();
     
-    plt.savefig('epochs-mse_'+sys.argv[1]+'_ws_'+ str(n_input)+"_"+sys.argv[2]+"-model.png")
+    plt.savefig('/'+modelo +'/'+region+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
@@ -298,9 +274,12 @@ def main():
     plot_predicciones(testinverse,n_input,df_real_data)
     plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data)
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
+    
     mse = mean_squared_error(df_real_data['BMW']['2021-07-02':'2021-12-31'], testinverse['Predictions'])
-    print("Mean squared error: ",mse)
-
+    errorMessage="Mean squared error using the "+model + " model and a window-size of "+str(n_input) + " for " + region + ': '+mse
+    with open("MSE.txt", "a") as f:
+        print(errorMessage, file=f)
+    
     #plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data)
     #print(df_multivariable.head())
     return 0
