@@ -29,6 +29,8 @@ region = sys.argv[1]
 modelo = sys.argv[2]
 window = sys.argv[3]
 
+resultspath='/results/'+modelo +'/'+region # Carpeta con las graficas de predicciones
+
 def generar_train_test_datasets():
     dataURLRegiones='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech3/'
     bmw_dataS=pd.read_excel('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
@@ -118,7 +120,7 @@ def plot_predicciones(testinverse,n_input,df_real_data):
     plt.title("Real predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for " + region)
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
-    plt.savefig('/'+modelo +'/'+region+'predictions_real_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_real_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
 
@@ -139,7 +141,7 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('/'+modelo +'/'+region+'predictions_train_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_train_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 
 
@@ -160,7 +162,7 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('/'+modelo +'/'+region+'predictions_test_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_test_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
 
 def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     n_input = int(window)
@@ -183,7 +185,7 @@ def plot_test2(testRNNM,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig('/'+modelo +'/'+region+'predictions_test2_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_test2_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
     
 def windowed_dataset_multivariable(series, window_size, batch_size):
     # convert the series to tensor format
@@ -266,12 +268,12 @@ def main():
     plt.ylabel("Error")
     plt.legend();
 
-    resultspath='/'+modelo +'/'+region
+    # Create subfolder for results
     isExist = os.path.exists(resultspath)
     if not isExist:
         os.makedirs(resultspath) # create results directory
 
-    plt.savefig('/'+modelo +'/'+region+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
+    plt.savefig(resultspath+'/epochs-mse_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-model.png")
     
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
 
