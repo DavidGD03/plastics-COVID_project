@@ -21,6 +21,7 @@ import os
 periodo = sys.argv[1] # Si es 1 la predicción empieza en julio 2021, si es 2 empieza en octubre 2021
 modelo = sys.argv[2]
 window = sys.argv[3]
+capas = sys.argv[4] # Si es 1 se usan muchas capas, si es 2 se usan menos capas en las redes neuronales
 
 # Parámetros modelo
 media=True # Aplicar filtro media móvil
@@ -41,7 +42,7 @@ elif periodo=='2':
 absolutepath = os.path.abspath(__file__)
 fileDirectory = os.path.dirname(absolutepath)
 
-resultspath=fileDirectory+'/results/'+modelo # Carpeta con las graficas de predicciones
+resultspath=fileDirectory+'/results/'+periodo+'/'+modelo # Carpeta con las graficas de predicciones
 
 def preproceDatosAMB(ciudad):
     df=pd.read_csv("https://www.datos.gov.co/resource/gt2j-8ykr.csv?$limit=1000000&ciudad_municipio_nom="+ciudad)
@@ -148,7 +149,7 @@ def plot_predicciones(testinverse,n_input,df_real_data):
     plt.title("Real predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for the AMB")
     plt.xlabel("Date")
     plt.ylabel("COVID-19 Cases")
-    plt.savefig(resultspath+'/predictions_real_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_real_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png",dpi=fig.dpi)
 
 def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     trainRNNM_predict  = model.predict(generator)
@@ -164,7 +165,7 @@ def plot_training(generator,model,Y_scaler,n_input,train_MRNN_sc,df_real_data):
     plt.ylabel("COVID-19 Cases")
     ax.get_gid()
     ax.legend()
-    plt.savefig(resultspath+'/predictions_train_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_train_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png",dpi=fig.dpi)
 
 def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     n_input = int(window)
@@ -183,7 +184,7 @@ def plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data):
     ax.set_ylabel("BMW Tons")
     ax.get_gid()
     ax.legend()
-    plt.savefig(resultspath+'/predictions_test_ws_'+ str(n_input)+"_"+modelo+"-model.png",dpi=fig.dpi)
+    plt.savefig(resultspath+'/predictions_test_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png",dpi=fig.dpi)
 
 def main():
     epochs=150
@@ -257,8 +258,8 @@ def main():
         else:
             print("Se ha creado el directorio:  "+resultspath)
 
-    plt.savefig(resultspath+'/epochs-mse_ws_'+ str(n_input)+"_"+modelo+"-model.png")
-    model.save(resultspath+'/model_ws_'+ str(n_input)+"_"+modelo+".h5")
+    plt.savefig(resultspath+'/epochs-mse_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png")
+    model.save(resultspath+'/model_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png")
 
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
@@ -268,7 +269,7 @@ def main():
     #plot_test(test_MRNN_scN,model,Y_scaler,test_MRNN_sc,df_real_data)
     
     mse = mean_squared_error(df_real_data['cases'][fechaITest:fechaFTest], testinverse['Predictions'])
-    errorMessage="Mean squared error using the "+modelo + " model and a window-size of "+str(window) + " for the AMB: "+str(mse)
+    errorMessage="Mean squared error using the "+modelo + " model, for period "+periodo+ " - layers "+ capas+", and a window-size of "+str(window) + ": "+str(mse)
     with open("MSE.txt", "a") as f:
         print(errorMessage, file=f)
     return 0
