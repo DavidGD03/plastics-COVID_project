@@ -1,5 +1,0 @@
-matplotlib
-pandas
-sklearn
-tensorflow
-openpyxl
