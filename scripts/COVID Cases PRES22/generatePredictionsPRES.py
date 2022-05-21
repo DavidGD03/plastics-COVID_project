@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
-import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 from keras.layers import LSTM
 from keras.layers import GRU
@@ -14,7 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
 from sklearn.metrics import mean_squared_error
 from keras.utils.vis_utils import plot_model
-from datetime import datetime
+import datetime
 import sys
 import os
 
