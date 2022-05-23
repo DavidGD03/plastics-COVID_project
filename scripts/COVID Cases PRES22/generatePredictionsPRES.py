@@ -259,7 +259,7 @@ def main():
             print("Se ha creado el directorio:  "+resultspath)
 
     plt.savefig(resultspath+'/epochs-mse_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png")
-    model.save(resultspath+'/model_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.png")
+    model.save(resultspath+'/model_ws_'+ str(n_input)+"_"+modelo+"_cps_"+capas+"-model.h5")
 
     Predicciones=generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_features)
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
