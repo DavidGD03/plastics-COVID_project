@@ -1,12 +1,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import model_selection
-from sklearn.metrics import accuracy_score
-
-from sklearn.model_selection import train_test_split
-
-from tensorflow import keras
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 
@@ -22,7 +16,6 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
 import datetime
 from sklearn.metrics import mean_squared_error
-from keras.utils.vis_utils import plot_model
 
 # Parámetros de entrada del script
 region = sys.argv[1]

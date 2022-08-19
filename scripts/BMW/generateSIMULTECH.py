@@ -21,24 +21,24 @@ def generar_train_test_datasets(escenario,X_scaler,Y_scaler):
     dataURLRegiones='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/India_5_Regiones_Simultech3/'
     # dataURLSEIRD='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/SEIRD_AMB_Paper_Old/'
     # dataURLSEIRD='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/SEIRD_AMB_Paper/'
-    dataURLSEIRD='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/SEIRD_AMBv4/'
+    dataURLSEIRD='https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/SEIRD_AMB_Tesis/'
     bmw_dataS=pd.read_excel('https://raw.githubusercontent.com/DavidGD03/plastics-COVID_project/main/data/india/total_bmw_waste.xlsx?raw=true',sheet_name=2)
     bmw_dataS['FECHA'] = pd.to_datetime(bmw_dataS['FECHA'], infer_datetime_format=True)
     bmw_dataS=bmw_dataS.fillna(bmw_dataS.mean())
     bmw_dataS=bmw_dataS.set_index('FECHA')
     df_multivariable=pd.read_csv(dataURLRegiones+'df_multivariable_AMB.csv')
     df_multivariable=df_multivariable.set_index('FECHA')
-    if escenario == 'pessimistic':
+    if escenario == 'Pessimistic':
         df_IPesimista=pd.read_csv(dataURLSEIRD+'ISEIRDPESIMISTA.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_DPesimista=pd.read_csv(dataURLSEIRD+'DSEIRDPESIMISTA.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_multivariable['Casos']=df_IPesimista['AMB']
         df_multivariable['Muertes']=df_DPesimista['AMB']
-    elif escenario == 'neutral':
+    elif escenario == 'Neutral':
         df_INeutral=pd.read_csv(dataURLSEIRD+'ISEIRDNEUTRAL.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_DNeutral=pd.read_csv(dataURLSEIRD+'DSEIRDNEUTRAL.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_multivariable['Casos']=df_INeutral['AMB']
         df_multivariable['Muertes']=df_DNeutral['AMB']
-    elif escenario == 'optimistic':
+    elif escenario == 'Optimistic':
         df_IOptimista=pd.read_csv(dataURLSEIRD+'ISEIRDOPTIMISTA.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_DOptimista=pd.read_csv(dataURLSEIRD+'DSEIRDOPTIMISTA.csv',names=['FECHA','AMB'],header=0, index_col='FECHA')
         df_multivariable['Casos']=df_IOptimista['AMB']
@@ -85,12 +85,17 @@ def generar_predicciones(model,train_MRNN_scN,test_MRNN_scN,Y_scaler,n_input,n_f
 
 def plot_predicciones(testinverse, n_input, lista_escenarios, df_real_data):
     fig = plt.figure(figsize=(10, 6))
+    # Aplicar filtro de media móvil de 7 días
+    testinverse=testinverse.rolling(window=7).mean()
     for escenario in lista_escenarios:
-        plt.plot(testinverse.index,testinverse['predictions_' + escenario],label="Predictions for the " + escenario + " scenario")
+        plt.plot(testinverse.index,testinverse['predictions_' + escenario],label=escenario + " scenario")
     plt.axvline(x=datetime.date(2021, 9, 1), ymin=-1, ymax=2,color="black",linestyle = "dashed",label="Start of the forecasting")
     plt.plot(df_real_data.index,df_real_data['BMW'], label="Real data")
     plt.legend(loc='best')
-    plt.title("Real predictions using the "+modelo + " model and a window-size of "+str(n_input)+ " for " + region)
+    # plt.title("Predicciones de los escenarios COVID usando el modelo "+modelo + " para el " + region)
+    # plt.xlabel("Fecha")
+    # plt.ylabel("Toneladas BMW")
+    plt.title("Predictions of the COVID scenarios using the LSTM model for the " + region)
     plt.xlabel("Date")
     plt.ylabel("BMW Tons")
     plt.savefig(resultspath+'\\predictions_real_'+region+'_ws_'+ str(n_input)+"_"+modelo+"-scenarios.png",dpi=fig.dpi)
@@ -106,8 +111,8 @@ def main():
     Y_scaler = MinMaxScaler()
     X_scaler=X_scaler.fit(df_multivariable[['Casos', 'Muertes', 'Mov Residencial', 'Mov trabajo', 'Mov estaciones']])
     Y_scaler=Y_scaler.fit(df_multivariable[['BMW']])
-    lista_escenarios = ['pessimistic', 'neutral', 'optimistic']
-    train_MRNN_sc, test_MRNN_sc, Y_scaler=generar_train_test_datasets('pessimistic',X_scaler,Y_scaler)
+    lista_escenarios = ['Pessimistic', 'Neutral', 'Optimistic']
+    train_MRNN_sc, test_MRNN_sc, Y_scaler=generar_train_test_datasets('Pessimistic',X_scaler,Y_scaler)
     testinverse=pd.DataFrame(Y_scaler.inverse_transform(test_MRNN_sc), index=test_MRNN_sc.index,columns=test_MRNN_sc.columns)
     for escenario in lista_escenarios:
         train_MRNN_sc, test_MRNN_sc, Y_scaler=generar_train_test_datasets(escenario,X_scaler,Y_scaler)
