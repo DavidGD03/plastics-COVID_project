@@ -18,7 +18,7 @@ Carpeta con todas las bases de datos utilizadas en los scripts.
 
 - WasteEng_simulacion_paper_RNN: Notebook con el modelo RNN utilizado en el paper WasteEng junto con el modelo de generación de residuos.
 
-- XGBoost_model: Notebook con el modelo XGBoost para la predicción de residuos biomédicos.
+- Linear_and_XGBoost_model: Notebook con el modelo de regresión lineal y XGBoost para la predicción de residuos biomédicos.
 
 ## Scripts
 
